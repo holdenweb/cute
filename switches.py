@@ -4,7 +4,6 @@ from machine import Timer, Pin
 class Debouncer:
 
     def __init__(self):
-        "Initialise debounce"
         self.switches = []
         self.timer = Timer(-1)
         self.timer.init(period=6, mode=Timer.PERIODIC, callback=self.tick)
@@ -35,18 +34,21 @@ class Switch:
         self.name = nygame
 
     def output(self):
+        "Return name of switch if closed, dot if open."
         return self.name if self.value else "."
 
-d = Debouncer()
+def switches():
+    "Report names of closed switches."
+    return "".join(x.output() for x in (Y, R, W, B))
 
+# Create a bank of four debounced switches
+d = Debouncer()
 Y = d.register(Switch(0, "Y")) # D3
 R = d.register(Switch(14, "R")) # D5
 W = d.register(Switch(12, "W")) # D6
 B = d.register(Switch(13, "B")) # D7
 
-def switches():
-    return "".join(x.output() for x in (Y, R, W, B))
-
+# Loop reporting changes in any switch's state
 state = switches()
 
 while True:
