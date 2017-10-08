@@ -19,11 +19,11 @@ class Debouncer:
         for switch in self.switches:
             bit = switch.pin.value()
             switch._state = ((switch._state << 1) | bit) & 0xfff
-            if switch._state == 0xfff:     # switch opened
-                switch.value = False
-            elif switch._state == 0x000:   # switch closed
+            # Latch state if last 12 samples were equal
+            if switch._state == 0x000:   # switch pressed
                 switch.value = True
-            # print(int(switch.value), end="")
+            elif switch._state == 0xfff: # switch released
+                switch.value = False
 
 class Switch:
 
@@ -31,7 +31,7 @@ class Switch:
         self._state = 0
         self.value = 0
         self.pin = Pin(pin_no)
-        self.name = nygame
+        self.name = name
 
     def output(self):
         "Return name of switch if closed, dot if open."
@@ -39,9 +39,9 @@ class Switch:
 
 def switches():
     "Report names of closed switches."
-    return "".join(x.output() for x in (Y, R, W, B))
+    return "".join(x.output() for x in (R, W, B, Y))
 
-# Create a bank of four debounced switches
+# Create a bank of five debounced switches
 d = Debouncer()
 Y = d.register(Switch(0, "Y")) # D3
 R = d.register(Switch(14, "R")) # D5
