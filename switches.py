@@ -41,14 +41,14 @@ def switches():
     "Report names of closed switches."
     return "".join(x.output() for x in (R, W, B, Y))
 
-# Create a bank of five debounced switches
+# Create a bank of four debounced switches
 d = Debouncer()
 Y = d.register(Switch(0, "Y")) # D3
 R = d.register(Switch(14, "R")) # D5
 W = d.register(Switch(12, "W")) # D6
 B = d.register(Switch(13, "B")) # D7
 
-# Loop reporting changes in any switch's state
+# Background task loops reporting changes in any switch's state
 state = switches()
 
 while True:
