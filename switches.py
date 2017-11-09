@@ -1,8 +1,23 @@
 """Simple switch debouncer"""
 from machine import Timer, Pin
 
-class Debouncer:
+class Switch:
+    "Represents a switch attached to a pin."
+    def __init__(self, pin_no, name):
+        self._state = 0
+        self.value = 0
+        self.pin = Pin(pin_no)
+        self.name = name
 
+    def output(self):
+        "Return name of switch if closed, dot if open."
+        return self.name if self.value else "."
+
+class Debouncer:
+    """Handles logic for repeated sampling of all switches with debounced transition detection.
+    
+    A regular tick schedules the examination of all registered switches, recording a value
+    if the last twelve samples agree (which the code assumes mean bouncing has stopped)."""
     def __init__(self):
         self.switches = []
         self.timer = Timer(-1)
@@ -15,9 +30,10 @@ class Debouncer:
         return switch
 
     def tick(self, _):
-        "Examine input states and note debounced state changes."
+        "Examine input states and note debounced states."
         for switch in self.switches:
             bit = switch.pin.value()
+            # Move samples up, adding newest and dropping oldest
             switch._state = ((switch._state << 1) | bit) & 0xfff
             # Latch state if last 12 samples were equal
             if switch._state == 0x000:   # switch pressed
@@ -25,20 +41,8 @@ class Debouncer:
             elif switch._state == 0xfff: # switch released
                 switch.value = False
 
-class Switch:
-
-    def __init__(self, pin_no, name):
-        self._state = 0
-        self.value = 0
-        self.pin = Pin(pin_no)
-        self.name = name
-
-    def output(self):
-        "Return name of switch if closed, dot if open."
-        return self.name if self.value else "."
-
 def switches():
-    "Report names of closed switches."
+    "Report names of pressed switches."
     return "".join(x.output() for x in (R, W, B, Y))
 
 # Create a bank of four debounced switches
@@ -48,7 +52,7 @@ R = d.register(Switch(14, "R")) # D5
 W = d.register(Switch(12, "W")) # D6
 B = d.register(Switch(13, "B")) # D7
 
-# Background task loops reporting changes in any switch's state
+# Background task loops reporting changes in any switches' state
 state = switches()
 
 while True:
