@@ -1,0 +1,8 @@
+{
+  "ssid": "SKY9E71B",
+  "password": "QCPARXVD",
+  "mask": "255.255.255.0",
+  "gateway": "192.168.1.1",
+  "boot_server": "192.168.1.103",
+  "dns_server": "8.8.8.8"
+}
