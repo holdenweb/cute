@@ -27,6 +27,7 @@ def load_file(file_name):
                 break
             data.append(new_data)
         data = b''.join(data)
+        # It might be a good idea to check the server status code here ...
         pos = data.find(b'\r\n\r\n')+4
         n = outf.write(data[pos:])
 

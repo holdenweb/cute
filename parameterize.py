@@ -2,34 +2,22 @@ import argparse
 import base64
 import json
 import os
+import sys
+
+from glob import glob
 from jinja2 import Environment, FileSystemLoader
 
-PROJECT_FOLDER = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-kubernetes_folder = os.path.join(PROJECT_FOLDER, 'kubernetes')
-felix_conductor_folder = os.path.join(PROJECT_FOLDER, 'felix_conductor')
-
+TEMPLATE_DIR = "templates"
+OUTPUT_DIR = "server"
 
 # Funcs
-def b64encode(s):
-    return base64.b64encode(s.encode('ascii')).decode('ascii')
-
-
 def render(template_name, env_vars=os.environ):
-    if not template_name.endswith('.pyt'):
-        sys.exit('We only process .pyt files')
-    contents = env.get_template(template_name).render(env_vars)
-
-    file_name = template_name[:-1]
-
-    print(f"Rendering {file_name}")
-    with open(file_name, "w") as outf:
-        outf.write(contents)
-    return
+    return env.get_template(template_name).render(env_vars)
 
 
 # Register environment and methods
 env = Environment(
-    loader=FileSystemLoader(".")
+    loader=FileSystemLoader("templates")
 )
 
 if __name__ == '__main__':
@@ -38,8 +26,20 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     params = {}
-    params['net'] = json.load(open('network.json'))
-    params['host'] = json.load(open('system.json'))
+    
+    # Scan all local json files, accumulating data
+    # Note we do not yet deal with directories, which
+    # would require adding a sub-key for each level
+    # of directory.
+    for j_file_name in glob('*.json'):
+        with open(j_file_name) as jf:
+            params[j_file_name[:-5]] = json.load(jf)
 
     for template_file in args.template_file:
-        render(template_file, env_vars=params)
+        if not template_file.endswith('.pyt'):
+            sys.exit('Sorry, we only process .pyt files')
+        file_name = template_file[:-1]
+        print(f"Rendering {file_name}")
+        content = render(template_file, env_vars=params)
+        with open(file_name, "w") as outf:
+            outf.write(content)
