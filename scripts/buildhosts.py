@@ -12,7 +12,7 @@ try:
         addr_by_name.update(json.load(f))
     print("Added hosts from templates/hosts.json")
 except FileNotFoundError:
-    raise
+    pass
 
 for file_path in glob.glob('templates/*'):
     if not os.path.isdir(file_path):
