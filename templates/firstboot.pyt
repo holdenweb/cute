@@ -1,7 +1,6 @@
 # firstboot.py - this file produced automatically - edits may be reverted
 
 from network import WLAN, STA_IF, AP_IF
-import socket
 
 sta_if, ap_if = WLAN(STA_IF), WLAN(AP_IF)
 ap_if.active(False)
@@ -14,10 +13,13 @@ if not sta_if.isconnected():
     sta_if.ifconfig(['{{ host.ip_address}}', '{{ net.mask }}', '{{ net.gateway }}', '{{ net.dns_server }}'])
     print("Connected")
 
+
+import usocket
+
 def load_file(file_name):
     print(file_name)
     data = []
-    sock = socket.socket()
+    sock = usocket.socket()
     sock.connect(('{{ net.boot_server }}', 8000))
     sock.send(b'GET /%s HTTP/1.0\r\n\r\n' % (file_name, ))
     with open(file_name, 'w') as outf:
@@ -31,5 +33,5 @@ def load_file(file_name):
         pos = data.find(b'\r\n\r\n')+4
         n = outf.write(data[pos:])
 
-for file_name in {{ host.files}}:
+for file_name in {{ host.files }}:
     load_file(file_name)

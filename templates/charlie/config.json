@@ -1,0 +1,12 @@
+{
+  "description": "Sender client reporting events",
+  "system_type": "D1 Mini",
+  "install_type": "serial-wifi",
+  "ip_address": "192.168.4.35",
+  "files": [
+    "boot.py",
+    "config.py",
+    "main.py",
+    "hosts.py"
+  ]
+}
