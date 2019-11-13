@@ -2,7 +2,7 @@
   "description": "Sender client demonstration",
   "system_type": "D1 Mini",
   "install_type": "serial-wifi",
-  "ip_address": "192.168.4.33",
+  "ip_address": "192.168.4.97",
   "files": [
     "boot.py",
     "config.py",
